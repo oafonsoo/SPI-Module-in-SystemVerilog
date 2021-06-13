@@ -36,6 +36,7 @@
 *.x86_64
 *.hex
 
+
 # Debug files
 *.dSYM/
 *.su
@@ -50,3 +51,20 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+# Quartus Files 
+/db
+/incremental_db
+/output_files
+/siumlation
+/work
+*.txt
+*sdc
+*.qsf
+*.qws
+*.bak
+*.wlf
+*.qpf
+*.do
+tb_SPIMaster.sv
+topLevel.sv
