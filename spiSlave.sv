@@ -7,14 +7,13 @@ So, in cases where these signals are register the FPGA's frequency should be at 
 
 // If you desire a SPI of the 16 bit, You will reach it with a bit change in the logic.     
 
- Parameters:  SPI_MODE, can be 0, 1, 2, or 3.  See above.
-              Can be configured in one of 4 modes:
-              Mode | Clock Polarity (CPOL/CKP) | Clock Phase (CPHA)
+ Parameters:  SPI_MODE
+              Mode | Clock Polarity (CPOL) | Clock Phase (CPHA)
                0   |             0             |        0
                1   |             0             |        1
                2   |             1             |        0
                3   |             1             |        1
-							See: https://en.wikipedia.org/wiki/Serial_Peripheral_Interface_Bus#Mode_numbers
+              See: https://en.wikipedia.org/wiki/Serial_Peripheral_Interface#/media/File:SPI_timing_diagram2.svg
 							
 							FRAME FORMAT : 0 - MSB and 1 - LSB 
 */              
@@ -57,29 +56,29 @@ logic r_ss  ;
 // Other Variables 
 logic[3:0] r_cycle_count;
 
-// Process to register the external SPI's signals. 
-// always_ff @(posedge w_Clk or negedge i_Rst_n) begin
-// 	if(~i_Rst_n) begin
-// 		r_mosi <= '0;
-// 		r_sclk <= '0;
-// 		r_ss   <= '0;
-// 	end else begin
-// 		r_mosi <= i_mosi;
-// 		r_sclk <= i_sclk;
-// 		r_ss   <= i_ss;
-// 	end
-// end
+//Process to register the external SPI's signals. 
+always_ff @(posedge w_Clk or negedge i_Rst_n) begin
+	if(~i_Rst_n) begin
+		r_mosi <= '0;
+		r_sclk <= '0;
+		r_ss   <= '0;
+	end else begin
+		r_mosi <= i_mosi;
+		r_sclk <= i_sclk;
+		r_ss   <= i_ss;
+	end
+end
 
 /* If you need of the sclk frequency four time less than FGPA's frequency uncomment the always combination below and comment
 the always_ff above. Attention . In this case you need guarantee than your signals will be stable, main the i_sclk and i_ss.
 All the case, you can choose if register or nor the signal, but is better keep registered.
 */  
 
-always_comb begin
-		r_mosi = i_mosi;
-		r_sclk = i_sclk;
-		r_ss   = i_ss;
-end
+// always_comb begin
+// 		r_mosi = i_mosi;
+// 		r_sclk = i_sclk;
+// 		r_ss   = i_ss;
+// end
 
 // Combinational logic to define SPI MODE.
 always_comb begin

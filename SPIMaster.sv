@@ -8,14 +8,13 @@ Note: Sclk Frequency is equal to fsclk = Fpga Frequency / 2(n+1), where n is DIV
               
  Parameters:  DIVIDE_FREQUENCY_SPI = See note above .
  							
- 							SPI_MODE, can be 0, 1, 2, or 3.  See below.
-              Can be configured in one of 4 modes:
-              Mode | Clock Polarity (CPOL/CKP) | Clock Phase (CPHA)
+ 							SPI_MODE
+              Mode | Clock Polarity (CPOL) | Clock Phase (CPHA)
                0   |             0             |        0
                1   |             0             |        1
                2   |             1             |        0
                3   |             1             |        1
-              See: https://en.wikipedia.org/wiki/Serial_Peripheral_Interface_Bus#Mode_numbers
+              See: https://en.wikipedia.org/wiki/Serial_Peripheral_Interface#/media/File:SPI_timing_diagram2.svg
 						
 							FRAME FORMAT : 0 - MSB and 1 - LSB 
 							SS_PIN_ENABLE : 1 - Enable the ss by Module. 0- Enable the ss by Module. 
@@ -30,7 +29,7 @@ The same way, you need to guarantee than other masters don't try to use bus duri
 Attention : Before the pulse i_tx_ready must ensure that o_busy is low.
 
 */
-module SPIMaster #(parameter DIVIDE_FREQUENCY_SPI = 3, MODE = 0, FRAME_FORMAT = 0, SS_PIN_ENABLE=1) (
+module SPIMaster #(parameter DIVIDE_FREQUENCY_SPI = 0, MODE = 0, FRAME_FORMAT = 0, SS_PIN_ENABLE=1) (
 	input                  i_Clk       , // Clock
 	input                  i_Clk_en    , // Clock Enable
 	input                  i_Rst_n     , // Asynchronous reset active low
@@ -330,14 +329,14 @@ always_ff @(posedge w_Clk or negedge i_Rst_n) begin
 	if(~i_Rst_n) begin
 		r_rx_byte    <= '0;
 	end else begin
-		if (!w_CPHA && !o_sclk && r_edge_detect_tmp) begin
+		if ((w_mode_select==0 || w_mode_select==3) && o_sclk && r_edge_detect_tmp) begin
 			if (!r_frame_formart) begin
 				r_rx_byte <= {r_rx_byte[6:0],i_miso};
 			end else begin
 				r_rx_byte <= {i_miso,r_rx_byte[7:1]};
 			end
 		end
-		else if (w_CPHA && o_sclk && r_edge_detect_tmp) begin
+		else if ((w_mode_select==1 || w_mode_select==2) && !o_sclk && r_edge_detect_tmp) begin
 			if (!r_frame_formart) begin
 				r_rx_byte <= {r_rx_byte[6:0],i_miso};
 			end else begin
